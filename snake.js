@@ -6,6 +6,7 @@ const gridCount = canvas.width / gridSize;
 let snake = [{ x: 0, y: 0 }];
 let direction = "right";
 let gameLoop;
+let food = { x: 0, y: 0 };
 
 // キーボードイベントの処理
 document.addEventListener("keydown", changeDirection);
@@ -16,6 +17,7 @@ function init() {
     direction = "right";
     clearInterval(gameLoop);
     gameLoop = setInterval(update, 150);
+    generateFood();
 }
 
 // ゲームの更新
@@ -25,6 +27,10 @@ function update() {
         clearInterval(gameLoop);
         alert("Game Over!");
         init();
+    }
+    if (checkFoodCollision()) {
+        snake.unshift({ x: food.x, y: food.y });
+        generateFood();
     }
     draw();
 }
@@ -56,9 +62,32 @@ function checkCollision() {
     return false;
 }
 
+// 餌の生成
+function generateFood() {
+    food = {
+        x: Math.floor(Math.random() * gridCount) * gridSize,
+        y: Math.floor(Math.random() * gridCount) * gridSize
+    };
+}
+
+// エサの衝突判定
+function checkFoodCollision() {
+    const head = snake[0];
+    if (head.x === food.x && head.y === food.y) {
+        return true;
+    }
+    return false;
+}
+
+
+
 // 描画
 function draw() {
     context.clearRect(0, 0, canvas.width, canvas.height);
+    // 餌の描画
+    context.fillStyle = "red";
+    context.fillRect(food.x, food.y, gridSize, gridSize);
+    // スネークの描画
     snake.forEach(segment => {
         context.fillStyle = "green";
         context.fillRect(segment.x, segment.y, gridSize, gridSize);
